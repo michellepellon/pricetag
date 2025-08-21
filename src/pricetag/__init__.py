@@ -1,8 +1,8 @@
 """
-pricetag - A pure-Python library for extracting price and currency information 
+pricetag - A pure-Python library for extracting price and currency information
 from text.
 
-Pure Python library for extracting price and currency information from 
+Pure Python library for extracting price and currency information from
 unstructured text, with a focus on salary data in job postings.
 
 Example:
@@ -23,7 +23,7 @@ __license__ = "MIT"
 
 __all__ = [
     "PriceExtractor",
-    "PriceResult", 
+    "PriceResult",
     "PriceType",
     "Config",
 ]

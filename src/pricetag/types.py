@@ -9,7 +9,7 @@ PriceType = Literal["hourly", "annual", "monthly", "base", "bonus", "unknown"]
 class PriceResult(TypedDict):
     """
     Represents an extracted price from text.
-    
+
     Attributes:
         value: Single float value or tuple of (min, max) for ranges
         raw_text: Original matched text from the source
@@ -21,6 +21,7 @@ class PriceResult(TypedDict):
         is_range: Whether the value represents a range
         flags: List of validation/warning flags
     """
+
     value: float | tuple[float, float]
     raw_text: str
     position: tuple[int, int]
@@ -35,7 +36,7 @@ class PriceResult(TypedDict):
 class Config(TypedDict):
     """
     Configuration options for PriceExtractor.
-    
+
     Attributes:
         min_confidence: Minimum confidence score to include results (0.0-1.0)
         include_contextual: Whether to extract contextual terms like "six figures"
@@ -44,6 +45,7 @@ class Config(TypedDict):
         max_salary: Maximum reasonable salary for validation
         assume_hours_per_year: Hours per year for hourly→annual conversion
     """
+
     min_confidence: float
     include_contextual: bool
     normalize_to_annual: bool
