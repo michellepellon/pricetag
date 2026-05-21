@@ -16,8 +16,13 @@ CURRENCY_TEXT = r"(?:USD|usd|dollars?)"
 OPTIONAL_CURRENCY = rf"(?:{CURRENCY_SYMBOL}|{CURRENCY_TEXT}\s*)?"
 
 # Number format patterns
-NUMBER_WITH_COMMAS = r"\d{1,3}(?:,\d{3})+"
-NUMBER_NO_COMMAS = r"\d+"
+# NB: NUMBER_WITH_COMMAS and NUMBER_NO_COMMAS include an optional decimal portion
+# so that "$110,000.00" is captured as a single number rather than truncating at
+# the comma group. Without this, decimal-cent ranges like "$110,000.00 - $160,000.00"
+# fail range matching because the regex stops at the comma group and then trips on
+# the leading "." of the cents.
+NUMBER_WITH_COMMAS = r"\d{1,3}(?:,\d{3})+(?:\.\d+)?"
+NUMBER_NO_COMMAS = r"\d+(?:\.\d+)?"
 DECIMAL_NUMBER = r"\d+\.?\d*"
 
 # Abbreviated number patterns (50k, 50K, 1.5m)
@@ -47,11 +52,14 @@ RANGE_SEPARATOR = r"(?:\s*[-–—]\s*|\s+to\s+|\s*-\s*)"
 RANGE_SEPARATOR_EXTENDED = r"(?:\s*[-–—]\s*|\s+to\s+|\s+through\s+|\s*-\s*|\s+and\s+)"
 
 # Range patterns
+# An optional TIME_PERIOD is allowed between the first number and the range
+# separator so we catch the common "$X/yr - $Y/yr" shape (LinkedIn's dominant
+# format) in addition to "$X - $Y per yr".
 RANGE_WITH_SYMBOL = (
-    rf"{CURRENCY_SYMBOL}\s*{NUMBER}{RANGE_SEPARATOR}{CURRENCY_SYMBOL}?\s*{NUMBER}"
+    rf"{CURRENCY_SYMBOL}\s*{NUMBER}(?:\s*{TIME_PERIOD})?{RANGE_SEPARATOR}{CURRENCY_SYMBOL}?\s*{NUMBER}"
 )
-RANGE_WITH_TEXT_CURRENCY = rf"{NUMBER}{RANGE_SEPARATOR}{NUMBER}\s*{CURRENCY_TEXT}"
-RANGE_NO_CURRENCY = rf"{NUMBER}{RANGE_SEPARATOR}{NUMBER}"
+RANGE_WITH_TEXT_CURRENCY = rf"{NUMBER}(?:\s*{TIME_PERIOD})?{RANGE_SEPARATOR}{NUMBER}\s*{CURRENCY_TEXT}"
+RANGE_NO_CURRENCY = rf"{NUMBER}(?:\s*{TIME_PERIOD})?{RANGE_SEPARATOR}{NUMBER}"
 
 # Range with optional time period
 RANGE_AMOUNT = rf"(?:{RANGE_WITH_SYMBOL}|{RANGE_WITH_TEXT_CURRENCY}|{RANGE_NO_CURRENCY})(?:\s*{TIME_PERIOD})?"

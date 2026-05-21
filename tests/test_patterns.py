@@ -124,6 +124,52 @@ class TestFindNumericPrices:
         assert len(results) <= 3
 
 
+class TestDecimalCentRanges:
+    """Regression tests for decimal-cent ranges (e.g. LinkedIn 'Base pay range').
+
+    Prior to v1.0.1 the NUMBER pattern stopped at the comma group, so a price
+    like '$110,000.00' was captured as '$110,000' and the trailing '.00' broke
+    range matching entirely. These tests pin the behavior in place.
+    """
+
+    def test_decimal_cents_in_number(self):
+        assert parse_number("110,000.00") == 110000.0
+        assert parse_number("85,000.50") == 85000.5
+
+    def test_bare_decimal_range(self):
+        results = find_numeric_prices("$110,000.00 - $160,000.00")
+        ranges = [r for r in results if r["is_range"]]
+        assert ranges, "expected a range result"
+        assert ranges[0]["value"] == (110000.0, 160000.0)
+
+    def test_decimal_range_with_suffix_between(self):
+        """LinkedIn's dominant format puts the period qualifier after each number."""
+        results = find_numeric_prices("$110,000.00/yr - $160,000.00/yr")
+        ranges = [r for r in results if r["is_range"]]
+        assert ranges
+        assert ranges[0]["value"] == (110000.0, 160000.0)
+
+    def test_decimal_range_inside_sentence(self):
+        text = "Base pay range $150,000.00/yr - $190,000.00/yr for this role"
+        results = find_numeric_prices(text)
+        ranges = [r for r in results if r["is_range"]]
+        assert ranges
+        assert ranges[0]["value"] == (150000.0, 190000.0)
+
+    def test_decimal_hourly_range_with_suffix_between(self):
+        results = find_numeric_prices("$50.00/hr - $65.00/hr")
+        ranges = [r for r in results if r["is_range"]]
+        assert ranges
+        assert ranges[0]["value"] == (50.0, 65.0)
+
+    def test_no_decimals_still_works(self):
+        """The pre-existing K-suffix shorthand keeps working."""
+        results = find_numeric_prices("$110K - $160K annual")
+        ranges = [r for r in results if r["is_range"]]
+        assert ranges
+        assert ranges[0]["value"] == (110000.0, 160000.0)
+
+
 class TestDetectPriceType:
     """Tests for detect_price_type function."""
     
