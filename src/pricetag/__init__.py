@@ -16,7 +16,7 @@ Example:
 from .extractor import PriceExtractor
 from .types import Config, PriceResult, PriceType
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "Michelle Pellon"
 __email__ = "mgracepellon@gmail.com"
 __license__ = "MIT"

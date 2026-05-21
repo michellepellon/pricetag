@@ -1,6 +1,6 @@
 [project]
 name = "pricetag"
-version = "1.0.0"
+version = "1.0.1"
 description = "A pure-Python library for extracting price and currency information from unstructured text"
 authors = [
     {name = "Michelle Pellon", email = "mgracepellon@gmail.com"}
